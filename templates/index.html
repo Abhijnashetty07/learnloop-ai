@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Learnloop AI: Personalised AI Tutor</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg:#0e0e0e;--card:#171717;--line:#2c2c2c;--gold:#f3c94b;--text:#ececec;--mute:#9a9a9a;--green:#3fb96b;--orange:#f39a2b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Roboto,Arial,sans-serif}
+header{display:flex;justify-content:space-between;align-items:center;padding:18px 28px;border-bottom:1px solid var(--line)}
+h1{margin:0;font-size:26px;font-weight:400}
+h1 b{color:var(--gold)}
+.pill{border:1px solid var(--line);border-radius:12px;padding:8px 14px;color:var(--text);background:#1a1a1a;font-size:14px;cursor:pointer}
+main{display:grid;grid-template-columns:1fr 1fr;gap:20px;padding:22px 28px;max-width:1200px;margin:0 auto}
+@media(max-width:800px){main{grid-template-columns:1fr}}
+.col{display:flex;flex-direction:column;gap:20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px}
+.label{color:var(--gold);font-size:17px;letter-spacing:.3px;margin:0 0 12px}
+.label small{color:var(--text);font-size:15px}
+.item{display:flex;justify-content:space-between;align-items:center;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px;background:#1b1b1b;cursor:pointer}
+.item:hover{border-color:#555}
+.item.active{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold) inset}
+.item.locked{opacity:.55;cursor:not-allowed}
+.ico{font-size:20px}
+.mastered .ico{color:var(--green)}.shaky .ico{color:var(--orange)}.available .ico{color:var(--gold)}.locked .ico{color:var(--mute)}
+.topic{font-size:17px;line-height:1.55;white-space:pre-wrap}
+.topic .q{display:block;margin-top:12px;color:var(--gold)}
+textarea{width:100%;min-height:200px;background:#121212;color:var(--text);border:2px solid var(--gold);border-radius:12px;padding:14px;font:16px/1.5 Segoe UI,Arial,sans-serif;resize:vertical}
+textarea:disabled{border-color:var(--line);opacity:.6}
+button.main{width:100%;margin-top:12px;background:#1d1d1d;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:12px;font-size:15px;letter-spacing:.5px;cursor:pointer}
+button.main:hover:not(:disabled){border-color:var(--gold);color:var(--gold)}
+button.main:disabled{opacity:.5;cursor:not-allowed}
+.hint{margin-top:14px;font-size:15px;line-height:1.5;color:var(--text)}
+.hint span{color:var(--gold)}
+.badge{display:inline-block;font-size:12px;color:var(--mute);margin-left:6px}
+.state{border:1px solid var(--line);border-radius:12px;padding:14px;background:#1b1b1b;line-height:1.5}
+.state span{color:var(--gold)}
+.chartwrap{height:300px;position:relative}
+#tracker{max-height:360px;overflow-y:auto;padding-right:6px}
+#tracker::-webkit-scrollbar{width:8px}
+#tracker::-webkit-scrollbar-thumb{background:#3a3a3a;border-radius:8px}
+@keyframes talk{50%{transform:scaleY(1.9)}}
+.bot.talking .mo{animation:talk .28s infinite}
+.tag{font-size:11px;color:#111;background:var(--gold);border-radius:6px;padding:2px 7px;margin-left:8px;animation:pulse 1.6s infinite}
+@keyframes pulse{50%{opacity:.5}}
+.btns{display:flex;gap:10px;margin-top:14px}
+.btns button{flex:1;background:#1d1d1d;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px;cursor:pointer;font-size:14px;letter-spacing:.5px}
+.btns button:hover:not(:disabled){border-color:var(--gold);color:var(--gold)}
+.btns button:disabled{opacity:.4;cursor:not-allowed}
+.nameinp{background:#1a1a1a;color:var(--text);border:1px solid var(--line);border-radius:12px;padding:8px 12px;font-size:14px;margin-right:10px;width:150px}
+.botrow{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.bubble{position:relative;background:#1f1f1f;border:1px solid var(--gold);border-radius:14px;padding:10px 14px;font-size:15px;line-height:1.4}
+.bubble:before{content:"";position:absolute;left:-8px;top:50%;margin-top:-7px;border:7px solid transparent;border-left:0;border-right-color:var(--gold)}
+.bot svg{display:block}
+.bot .wrap{transform-origin:60px 120px;animation:bob 3s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-4px)}}
+@keyframes hop{40%{transform:translateY(-18px)}}
+@keyframes ablink{50%{opacity:.2}}
+.mo{display:none;fill:none;stroke:#f3c94b;stroke-width:3;stroke-linecap:round}
+.mo.mt{fill:#f3c94b;stroke:none}
+.bot.idle .mi,.bot.happy .mh,.bot.confused .mc,.bot.thinking .mt,.bot.listening .mt{display:block}
+.bot.happy .wrap{animation:hop .6s ease 3}
+.bot.confused .wrap{animation:none;transform:rotate(-8deg)}
+.bot.thinking .ant{animation:ablink .7s infinite}
+.bot.thinking .eyes{transform:translateX(5px)}
+.waves{display:none;fill:none;stroke:#f3c94b;stroke-width:3;stroke-linecap:round}
+.bot.listening .waves{display:block;animation:ablink 1s infinite}
+@keyframes blink{50%{opacity:.5}}
+.rec{border-color:#e5484d !important;color:#e5484d !important;animation:blink 1.2s infinite}
+</style>
+</head>
+<body>
+<header>
+  <h1><b>Learnloop AI</b>: Personalised AI Tutor</h1>
+  <div><input class="nameinp" id="nameBox" placeholder="Your name (optional)" maxlength="20"><span class="pill" id="voiceBtn" style="margin-right:10px">&#128266; Loopy voice: Off</span><span class="pill" id="reset">Reset session</span></div>
+</header>
+<main>
+  <div class="col">
+    <div class="card"><p class="label">CONCEPT TRACKER</p><div id="tracker"></div></div>
+    <div class="card"><p class="label">SESSION MASTERY GROWTH <small>(Chart.js)</small></p>
+      <div class="chartwrap"><canvas id="chart"></canvas></div></div>
+    <div class="card"><div class="state" id="stateBox"><span>STATE UPDATE:</span> Pick a concept to begin.</div></div>
+  </div>
+  <div class="col">
+    <div class="card"><div class="botrow"><div class="bot idle" id="bot">
+<svg viewBox="0 0 124 130" width="110" height="118" aria-hidden="true">
+<g class="wrap">
+<line x1="60" y1="10" x2="60" y2="24" stroke="#f3c94b" stroke-width="3"/>
+<circle class="ant" cx="60" cy="8" r="6" fill="#f3c94b"/>
+<rect x="18" y="24" width="84" height="66" rx="18" fill="#242424" stroke="#f3c94b" stroke-width="3"/>
+<rect x="28" y="36" width="64" height="40" rx="10" fill="#0e0e0e"/>
+<g class="eyes"><circle cx="46" cy="54" r="6" fill="#f3c94b"/><circle cx="74" cy="54" r="6" fill="#f3c94b"/></g>
+<path class="mo mi" d="M50 66 Q60 72 70 66"/>
+<path class="mo mh" d="M48 63 Q60 78 72 63"/>
+<path class="mo mc" d="M48 68 Q54 62 60 68 T72 68"/>
+<circle class="mo mt" cx="60" cy="67" r="3"/>
+<rect x="40" y="94" width="40" height="28" rx="8" fill="#242424" stroke="#f3c94b" stroke-width="3"/>
+<circle cx="60" cy="108" r="5" fill="#3fb96b"/>
+<rect x="8" y="98" width="16" height="9" rx="4" fill="#f3c94b"/>
+<rect x="96" y="98" width="16" height="9" rx="4" fill="#f3c94b"/>
+</g>
+<g class="waves"><path d="M108 46 q8 10 0 20"/><path d="M116 40 q12 16 0 32"/></g>
+</svg></div>
+<div class="bubble" id="botMsg">Hi! I am Loopy, your tutor bot. Pick a concept to begin!</div></div>
+<p class="label" id="topicTitle">ACTIVE TOPIC</p>
+      <div class="topic" id="topicBody">Choose an unlocked concept from the tracker to start learning.</div>
+<div class="btns"><button id="btnConfused" disabled>I'M CONFUSED</button><button id="btnDeeper" disabled>GO DEEPER</button></div></div>
+    <div class="card"><p class="label">YOUR RESPONSE <small>(Free-text)</small></p>
+      <textarea id="answer" placeholder="Type your answer here..." disabled></textarea>
+      <button class="main" id="mic" disabled>&#127908; SPEAK YOUR ANSWER</button>
+<button class="main" id="submit" disabled>SUBMIT ANSWER</button>
+      <div class="hint" id="hint"><span>HINT:</span> Answer in your own words. Gemini will evaluate your understanding.</div></div>
+  </div>
+</main>
+<script>
+var current=null, chart=null;
+var ICONS={mastered:"&#10004;",shaky:"&#9644;",available:"&#9679;",locked:"&#128274;"};
+var COLORS=["#ff7aa2","#ff5c7a","#ff9f43","#ffc94b","#ffe066","#a5d76e","#4cd38a","#3cc8b4","#5b9cf5","#4b8bd6"];
+function $(id){return document.getElementById(id);}
+function esc(s){var d=document.createElement("div");d.textContent=s;return d.innerHTML;}
+async function api(path,body){
+  var opt=body?{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)}:{};
+  var r=await fetch(path,opt);var j=await r.json();
+  if(!r.ok){throw new Error(j.error||"Request failed");}
+  return j;
+}
+function drawChart(history){
+  var labels=history.map(function(h){return h.label;});
+  var data=history.map(function(h){return h.level;});
+  var colors=data.map(function(_,i){return COLORS[i%COLORS.length];});
+  if(chart){chart.destroy();}
+  chart=new Chart($("chart"),{type:"bar",
+    data:{labels:labels,datasets:[{data:data,backgroundColor:colors,borderRadius:4}]},
+    options:{maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{y:{min:0,max:100,title:{display:true,text:"Comprehension Level",color:"#ccc"},ticks:{color:"#ccc"},grid:{color:"#2a2a2a"}},
+              x:{title:{display:true,text:"Sequential Checkpoint",color:"#ccc"},ticks:{color:"#ccc"},grid:{display:false}}}}});
+}
+async function loadState(){
+  var s=await api("/api/state");
+  var html="";
+  s.concepts.forEach(function(c){
+    var cls="item "+c.status+(current===c.id?" active":"");
+    html+='<div class="'+cls+'" data-id="'+c.id+'" data-status="'+c.status+'"><span>'+esc(c.name)+(c.id===s.next?'<span class="tag">NEXT UP</span>':'')+'</span><span class="ico">'+ICONS[c.status]+'</span></div>';
+  });
+  var st=$("tracker").scrollTop;$("tracker").innerHTML=html;$("tracker").scrollTop=st;
+  document.querySelectorAll(".item").forEach(function(el){
+    el.onclick=function(){
+      if(el.dataset.status==="locked"){$("stateBox").innerHTML="<span>LOCKED:</span> Master the prerequisites first.";return;}
+      startConcept(el.dataset.id,"normal");
+    };
+  });
+  drawChart(s.history);
+  window.userName=s.user_name;
+  return s;
+}
+async function startConcept(id,mode){
+  try{
+    $("topicBody").textContent="Thinking...";
+    var d=await api("/api/start",{id:id,mode:mode});
+    current=id;setBot("idle","Let's learn "+d.name+" together"+nm()+"!");
+    $("topicTitle").textContent="ACTIVE TOPIC: "+d.name.toUpperCase();
+    $("topicBody").innerHTML=esc(d.explanation)+'<span class="q">'+esc(d.question)+'</span><span class="badge">source: '+d.source+'</span>';
+    $("answer").disabled=false;$("submit").disabled=false;say(d.explanation);$("btnConfused").disabled=false;$("btnDeeper").disabled=false;$("mic").disabled=false;$("answer").value="";$("answer").focus();
+    $("hint").innerHTML="<span>HINT:</span> Answer in your own words. Gemini will evaluate your understanding.";
+    loadState();
+  }catch(e){$("topicBody").textContent=e.message;}
+}
+$("submit").onclick=async function(){
+  var text=$("answer").value.trim();
+  if(!text){$("hint").innerHTML="<span>HINT:</span> Please write an answer first.";return;}
+  $("submit").disabled=true;$("hint").innerHTML="<span>ANALYSIS PAUSE:</span> Evaluating your answer...";setBot("thinking","Hmm, let me think about that...");
+  try{
+    var r=await api("/api/answer",{id:current,answer:text});
+    var msg="<span>SCORE: "+r.score+"/100 ("+r.verdict+")</span> "+esc(r.feedback)+' <span class="badge">graded by '+r.source+'</span>';
+    if(r.unlocked&&r.unlocked.length){msg+="<br><span>UNLOCKED:</span> "+esc(r.unlocked.join(", "));}
+    if(r.follow_up){msg+="<br><span>THINK ABOUT THIS:</span> "+esc(r.follow_up)+" (improve your answer above and submit again)";}
+    $("hint").innerHTML=msg;say(r.feedback+(r.follow_up?" Think about this. "+r.follow_up:""));
+    $("stateBox").innerHTML="<span>STATE UPDATE:</span> "+esc(r.state_update);
+    setBot(r.verdict==="mastered"?"happy":"confused", r.verdict==="mastered"?"Yes"+nm()+"! You nailed it!":(r.verdict==="shaky"?"Almost there! Let us polish it.":"No worries, let us try another way."));
+    if(r.re_explanation){
+      $("topicBody").innerHTML='<span class="q">Let us try that another way:</span>'+esc(r.re_explanation);
+    }
+    await loadState();
+  }catch(e){$("hint").textContent=e.message;}
+  $("submit").disabled=false;
+};
+$("reset").onclick=async function(){
+  await api("/api/reset",{});current=null;
+  $("topicTitle").textContent="ACTIVE TOPIC";
+  $("topicBody").textContent="Choose an unlocked concept from the tracker to start learning.";
+  $("answer").value="";$("answer").disabled=true;$("submit").disabled=true;$("btnConfused").disabled=true;$("btnDeeper").disabled=true;$("mic").disabled=true;
+  $("stateBox").innerHTML="<span>STATE UPDATE:</span> Session reset.";setBot("idle","Fresh start! Pick a concept.");
+  loadState();
+};
+var SR=window.SpeechRecognition||window.webkitSpeechRecognition, rec=null, listening=false, base="";
+if(!SR){$("mic").style.display="none";}
+else{
+  rec=new SR();rec.lang="en-IN";rec.continuous=true;rec.interimResults=true;
+  rec.onresult=function(e){var t="";for(var i=0;i<e.results.length;i++){t+=e.results[i][0].transcript;}$("answer").value=(base?base+" ":"")+t;};
+  rec.onend=function(){listening=false;$("mic").innerHTML="&#127908; SPEAK YOUR ANSWER";$("mic").classList.remove("rec");};
+  rec.onerror=function(e){$("hint").innerHTML="<span>MIC:</span> "+(e.error==="not-allowed"?"Please allow microphone access in your browser.":"Voice input stopped ("+esc(e.error)+"). You can type instead.");};
+  $("mic").onclick=function(){
+    if(listening){rec.stop();return;}
+    base=$("answer").value.trim();if(window.speechSynthesis){speechSynthesis.cancel();}rec.start();listening=true;setBot("listening","I am listening...");
+    $("mic").innerHTML="&#9209; STOP LISTENING";$("mic").classList.add("rec");
+  };
+}
+function nm(){var v=$("nameBox").value.trim();return v?", "+v:"";}
+var voiceOn=false, voice=null;
+function pickVoice(){var vs=speechSynthesis.getVoices();voice=vs.find(function(v){return /en-IN/i.test(v.lang);})||vs.find(function(v){return /^en/i.test(v.lang);})||null;}
+if(window.speechSynthesis){pickVoice();speechSynthesis.onvoiceschanged=pickVoice;}else{$("voiceBtn").style.display="none";}
+function say(text){
+  if(!voiceOn||!window.speechSynthesis||!text){return;}
+  speechSynthesis.cancel();
+  var u=new SpeechSynthesisUtterance(text);
+  if(voice){u.voice=voice;}u.rate=1;u.pitch=1.3;
+  u.onstart=function(){$("bot").classList.add("talking");};
+  u.onend=function(){$("bot").classList.remove("talking");};
+  u.onerror=u.onend;
+  speechSynthesis.speak(u);
+}
+$("voiceBtn").onclick=function(){
+  voiceOn=!voiceOn;
+  $("voiceBtn").innerHTML="&#128266; Loopy voice: "+(voiceOn?"On":"Off");
+  if(voiceOn){say("Hi! I am Loopy. I will read things out for you.");}
+  else if(window.speechSynthesis){speechSynthesis.cancel();$("bot").classList.remove("talking");}
+};
+$("nameBox").onchange=function(){var v=this.value.trim();if(v){var m="Nice to meet you, "+v+"!";setBot("happy",m);if(typeof say==="function"){say(m);}}};
+function setBot(mood,msg){$("bot").className="bot "+mood;$("botMsg").textContent=msg;}
+$("btnConfused").onclick=function(){if(current){startConcept(current,"analogy");}};
+$("btnDeeper").onclick=function(){if(current){startConcept(current,"deeper");}};
+loadState();
+</script>
+</body>
+</html>

@@ -1,0 +1,184 @@
+[
+  {
+    "id": "ml_basics",
+    "name": "Machine Learning Basics",
+    "prerequisites": [],
+    "explanation": "Machine learning is teaching a computer to find patterns in examples instead of writing rules by hand. You show it many examples, it learns a pattern, then it makes predictions on new data.",
+    "analogy": "Like learning to recognise dogs: nobody gives you a rulebook, you just see many dogs until you can spot a new one.",
+    "check_question": "In your own words, how is machine learning different from writing normal rule-based code?"
+  },
+  {
+    "id": "supervised_learning",
+    "name": "Supervised Learning",
+    "prerequisites": [
+      "ml_basics"
+    ],
+    "explanation": "Supervised learning trains a model on examples that come with the correct answers, called labels. The model learns to map inputs to those answers, then predicts labels for new inputs.",
+    "analogy": "Like studying with flashcards that have the answer on the back.",
+    "check_question": "What is a label, and why does supervised learning need them?"
+  },
+  {
+    "id": "linear_regression",
+    "name": "Linear Regression",
+    "prerequisites": [
+      "supervised_learning"
+    ],
+    "explanation": "Linear regression fits a straight line through data so you can predict a number, such as a house price from its size. Training finds the line that keeps the prediction errors as small as possible.",
+    "analogy": "Like drawing the best straight line through a scatter of dots on graph paper.",
+    "check_question": "What kind of problem is linear regression good for, and what does the fitted line let you do?"
+  },
+  {
+    "id": "loss_functions",
+    "name": "Loss Functions",
+    "prerequisites": [
+      "ml_basics"
+    ],
+    "explanation": "A loss function is a number that measures how wrong a model's predictions are. A lower loss means better predictions, so training tries to make this number as small as possible.",
+    "analogy": "Like a score in golf: the lower the score, the better you did.",
+    "check_question": "Why does a model need a loss function? What does a high loss tell us?"
+  },
+  {
+    "id": "overfitting",
+    "name": "Overfitting",
+    "prerequisites": [
+      "supervised_learning"
+    ],
+    "explanation": "Overfitting happens when a model memorises its training examples, noise included, and then does badly on new data. A good model captures the general pattern instead.",
+    "analogy": "Like a student who memorises last year's exam answers but cannot solve a new question.",
+    "check_question": "Why can a model that scores perfectly on training data still fail on new data?"
+  },
+  {
+    "id": "gradient_descent",
+    "name": "Gradient Descent",
+    "prerequisites": [
+      "loss_functions"
+    ],
+    "explanation": "Gradient descent is a method to reduce the loss. At each step it checks which direction lowers the loss fastest, then moves a small step that way, and repeats until the loss stops improving.",
+    "analogy": "A hiker lost in fog feels the slope under their feet and always steps downhill until they reach the valley.",
+    "check_question": "Explain gradient descent using a non-technical analogy. What does the step size (learning rate) control?"
+  },
+  {
+    "id": "neural_networks",
+    "name": "Neural Networks",
+    "prerequisites": [
+      "gradient_descent"
+    ],
+    "explanation": "A neural network is layers of simple units that each take numbers in, apply weights, and pass results on. Stacking layers lets the network learn complex patterns. The weights are what gradient descent adjusts.",
+    "analogy": "Like a team passing a message down a line, where each person adjusts it slightly before passing it on.",
+    "check_question": "What are the weights in a neural network, and what changes them during training?"
+  },
+  {
+    "id": "activation_functions",
+    "name": "Activation Functions",
+    "prerequisites": [
+      "neural_networks"
+    ],
+    "explanation": "An activation function decides how strongly a neuron fires after adding up its inputs. It adds a bend to the maths, which lets a network learn curved, complex patterns instead of only straight lines.",
+    "analogy": "Like a dimmer switch that decides how brightly each light should glow.",
+    "check_question": "Why would a neural network be much weaker without activation functions?"
+  },
+  {
+    "id": "backpropagation",
+    "name": "Backpropagation",
+    "prerequisites": [
+      "neural_networks"
+    ],
+    "explanation": "Backpropagation works out how much each weight in the network contributed to the error, by passing the error backwards from the output to the input layers. Gradient descent then uses this to update the weights.",
+    "analogy": "Like a team that lost a match reviewing the game backwards from the final mistake to see who needs to improve what.",
+    "check_question": "Why do we pass the error backwards through the network instead of only forwards?"
+  },
+  {
+    "id": "cnn",
+    "name": "Convolutional Neural Networks",
+    "prerequisites": [
+      "activation_functions"
+    ],
+    "explanation": "A CNN slides small filters over an image to detect simple features like edges, then combines them into shapes and objects in later layers. It is the classic design for image tasks.",
+    "analogy": "Like scanning a photo with a small magnifying glass, first spotting edges, then eyes, then a whole face.",
+    "check_question": "What does a filter in a CNN look for, and why is sliding it across the image useful?"
+  },
+  {
+    "id": "tokenization",
+    "name": "Tokenization",
+    "prerequisites": [
+      "ml_basics"
+    ],
+    "explanation": "Tokenization splits text into small pieces called tokens, which can be words or parts of words. Each token is turned into a number, because models can only work with numbers.",
+    "analogy": "Like cutting a sentence into Lego bricks that the model can pick up and build with.",
+    "check_question": "Why do language models split text into tokens instead of reading whole sentences?"
+  },
+  {
+    "id": "embeddings",
+    "name": "Embeddings",
+    "prerequisites": [
+      "neural_networks"
+    ],
+    "explanation": "An embedding turns a word or item into a list of numbers so that similar things end up with similar numbers. This lets a model work with meaning as maths.",
+    "analogy": "Like placing every word on a map where words with similar meanings live in the same neighbourhood.",
+    "check_question": "Why is it useful for similar words to have similar embeddings?"
+  },
+  {
+    "id": "attention",
+    "name": "Attention",
+    "prerequisites": [
+      "embeddings"
+    ],
+    "explanation": "Attention lets a model decide which other words in a sentence matter most when understanding one word. Each word looks at all the others and gives more weight to the relevant ones.",
+    "analogy": "Like reading a sentence and highlighting the words that help you understand the one you are stuck on.",
+    "check_question": "In the sentence 'The animal did not cross the street because it was tired', what should 'it' pay attention to, and why?"
+  },
+  {
+    "id": "transformers",
+    "name": "Transformers and Attention",
+    "prerequisites": [
+      "attention",
+      "backpropagation"
+    ],
+    "explanation": "A transformer is a neural network built from stacked attention layers. It reads all the words at once instead of one by one, which makes training fast and lets it capture long-range meaning. Modern language models are transformers.",
+    "analogy": "Like a meeting where everyone can hear everyone else at the same time, instead of passing notes down a line.",
+    "check_question": "What is the main advantage of a transformer reading all words at once compared with reading them one by one?"
+  },
+  {
+    "id": "llm",
+    "name": "Large Language Models",
+    "prerequisites": [
+      "transformers",
+      "tokenization"
+    ],
+    "explanation": "A large language model is a huge transformer trained on vast amounts of text to predict the next token. By doing this over and over, it learns grammar, facts and reasoning patterns.",
+    "analogy": "Like a super-powered autocomplete that has read a huge library.",
+    "check_question": "How can simply predicting the next word lead to a model that answers questions?"
+  },
+  {
+    "id": "prompting",
+    "name": "Prompt Engineering",
+    "prerequisites": [
+      "llm"
+    ],
+    "explanation": "Prompt engineering is writing clear instructions so a language model gives useful answers. Giving context, a role, examples and the format you want usually improves results.",
+    "analogy": "Like giving a helpful assistant a clear brief instead of a vague request.",
+    "check_question": "Name two things you can add to a prompt to get a better answer, and explain why they help."
+  },
+  {
+    "id": "rag",
+    "name": "Retrieval-Augmented Generation",
+    "prerequisites": [
+      "llm",
+      "embeddings"
+    ],
+    "explanation": "RAG first searches a knowledge source for passages related to the question, using embeddings, then gives them to the language model to answer from. This keeps answers current and grounded in real documents.",
+    "analogy": "Like an open-book exam where you look up the right page before writing your answer.",
+    "check_question": "Why does retrieving documents first help a language model give more reliable answers?"
+  },
+  {
+    "id": "fine_tuning",
+    "name": "Fine-Tuning",
+    "prerequisites": [
+      "llm",
+      "overfitting"
+    ],
+    "explanation": "Fine-tuning continues training a pretrained model on a smaller, focused dataset so it gets better at a specific task or style. It is cheaper than training from scratch, but too much training can cause overfitting.",
+    "analogy": "Like a trained chef spending a week learning one restaurant's menu.",
+    "check_question": "When would you fine-tune a model instead of training a new one from scratch?"
+  }
+]
