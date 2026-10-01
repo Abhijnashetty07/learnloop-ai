@@ -16,7 +16,32 @@ def fresh_state():
     return {"user_name": "Abhijna", "best": {}, "history": []}
 
 
-STATE = fresh_state()
+import uuid
+from flask import g
+from werkzeug.local import LocalProxy
+
+SESSIONS = {}
+
+
+def get_state():
+    sid = request.cookies.get("sid") or getattr(g, "new_sid", None)
+    if not sid:
+        sid = uuid.uuid4().hex
+        g.new_sid = sid
+    if sid not in SESSIONS:
+        SESSIONS[sid] = fresh_state()
+    return SESSIONS[sid]
+
+
+STATE = LocalProxy(get_state)
+
+
+@app.after_request
+def set_sid(resp):
+    sid = getattr(g, "new_sid", None)
+    if sid:
+        resp.set_cookie("sid", sid, max_age=604800, samesite="Lax")
+    return resp
 
 
 def status_of(c):
