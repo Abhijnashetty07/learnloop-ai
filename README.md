@@ -42,11 +42,11 @@ pip install -r requirements.txt
 Create a file named `.env` containing your own Gemini API key:
 ```
 GEMINI_API_KEY=your_key_here
-Then start the app and open http://127.0.0.1:5000
+
 ```
 python app.py
 ```
-
+Then start the app and open http://127.0.0.1:5000
 ```
 ## Project files
 - `app.py` - Flask backend: concept state, unlocking, answer scoring
